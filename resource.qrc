@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="ciphertext.png">oxygen-icons/application-pgp-keys.png</file>
+        <file alias="plaintext.png">oxygen-icons/application-x-zerosize.png</file>
+        <file alias="key.png">oxygen-icons/dialog-password.png</file>
+        <file alias="archive.png">oxygen-icons/application-x-compress.png</file>
+    </qresource>
+    <qresource prefix="/qml">
+        <file>droparea.qml</file>
+    </qresource>
+</RCC>
