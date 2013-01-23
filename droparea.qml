@@ -1,5 +1,4 @@
 import QtQuick 1.1
-import QtQuick 1.0
 
 Rectangle {
 	id: background
@@ -15,6 +14,7 @@ Rectangle {
 		color: "white"
 		anchors.verticalCenter: parent.verticalCenter
 		anchors.horizontalCenter: parent.horizontalCenter
+		opacity: 1
 	}
 
 	Text {
@@ -23,6 +23,7 @@ Rectangle {
 		color: "white"
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: plaintext.bottom
+		opacity: 0
 	}
 
 	Image {
@@ -37,7 +38,7 @@ Rectangle {
 		id: archive
 		anchors.verticalCenter: parent.verticalCenter
 		anchors.horizontalCenter: parent.horizontalCenter
-		opacity: 1
+		opacity: 0
 		source: "qrc:/images/archive.png"
 	}
 
