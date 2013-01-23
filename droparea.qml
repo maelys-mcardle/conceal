@@ -1,8 +1,8 @@
 import QtQuick 1.1
 
 Rectangle {
-	id: background
-
+	id: master
+	state: "Default"
 	width:600
 	height:480
 	color: "#1e1414"
@@ -50,21 +50,132 @@ Rectangle {
 		source: "qrc:/images/ciphertext.png"
 	}
 
+	MouseArea {
+		id: infoMouseArea
+		x: 0
+		y: 0
+		width: parent.width/3
+		height: parent.height
+		hoverEnabled: true
+		onHoveredChanged: {
+			if (infoMouseArea.containsMouse) master.state = "HintInfo";
+			else master.state = "HideInfo";
+		}
+		onClicked: {
+			master.state = "ShowInfo"
+		}
+	}
 
- states: [
-	 State {
-		 name: "Processing"
+	Rectangle {
+		id: infoBackground
+		rotation: 270
+		anchors.centerIn: parent
+		width: parent.height
+		height: parent.width
+		opacity: 0
+		gradient: Gradient {
+			GradientStop { position: 0; color: "#d0000090"; }
+			GradientStop { position: 0.5; color: "#d01e1414"; }
+			GradientStop { position: 1; color: "#d01e1414"; }
+		}
 
-		 PropertyChanges {
-			 target: dropText
-			 visible: false
-		 }
+		Item {
+			id: deRotateInfo
+			rotation: 90
+			width: parent.height - 20
+			height: parent.width - 20
+			anchors.centerIn: parent
 
-		 PropertyChanges {
-			 target: ciphertext
-			 opacity: 1
-		 }
-	 }
- ]
+			Text {
+				id: infoTitle
+				anchors.left: parent.left
+				anchors.top: parent.top
+				text: "Conceal"
+				font.pixelSize: 24
+				color: "white"
+				opacity: 0
+			}
+
+			Text {
+				id: infoTooltip
+				text: "click for information"
+				anchors.top: parent.top
+				anchors.left: parent.left
+				color: "white"
+				style: Text.Raised
+				styleColor: "gray"
+				opacity: 0
+			}
+
+			Text {
+				id: infoText
+				anchors.left: infoTitle.left
+				anchors.top: infoTitle.bottom
+				width: master.width - 30
+				text: "\nConceal is a program to encrypt and decrypt files. " +
+				"It's intent is to bring privacy to those would want it, " +
+				"but might be hesitant to use more comprehensive packages " +
+				"like TrueCrypt.\n\n" +
+				"This software uses 128-bit RIJNDAEL encryption, implemented by the " +
+				"MCRYPT library. The cryptographic key is the MD5 hash of the supplied " +
+				"password. This program was developed using Qt.\n\n" +
+				"Released under the terms of the GPLv2."
+				color: "white"
+				style: Text.Raised
+				styleColor: "gray"
+				wrapMode: Text.WordWrap
+				opacity: 0
+			}
+		}
+	}
+
+
+states: [
+	State {
+		name: "Default"
+		PropertyChanges { target: infoMouseArea; enabled: true; }
+		PropertyChanges { target: dropText; opacity: 1; }
+		PropertyChanges { target: subtitle; opacity: 0; }
+		PropertyChanges { target: ciphertext; opacity: 0; }
+		PropertyChanges { target: archive; opacity: 0; }
+		PropertyChanges { target: plaintext; opacity: 0; }
+	},
+
+	State {
+		name: "Processing"
+		PropertyChanges { target: infoMouseArea; enabled: false; }
+		PropertyChanges { target: dropText; opacity: 0; }
+		PropertyChanges { target: subtitle; opacity: 1; }
+		PropertyChanges { target: ciphertext; opacity: 1; }
+		PropertyChanges { target: archive; opacity: 1; }
+		PropertyChanges { target: plaintext; opacity: 1; }
+	},
+
+	State {
+		name: "HintInfo"
+		PropertyChanges { target: infoBackground; opacity: 1; }
+		PropertyChanges { target: infoTooltip; opacity: 1; }
+	},
+
+	State {
+		name: "HideInfo"
+		PropertyChanges { target: infoText; opacity: 0; }
+		PropertyChanges { target: infoTitle; opacity: 0; }
+		PropertyChanges { target: infoBackground; opacity: 0; }
+		PropertyChanges { target: infoTooltip; opacity: 0; }
+	},
+
+	State {
+		name: "ShowInfo"
+		PropertyChanges { target: infoText; opacity: 1; }
+		PropertyChanges { target: infoTitle; opacity: 1; }
+		PropertyChanges { target: infoBackground; opacity: 1; }
+		PropertyChanges { target: infoTooltip; opacity: 0; }
+	}
+]
+
+transitions: Transition {
+	NumberAnimation { properties: "opacity"; easing.type: Easing.InOutQuad }
+}
 
 }

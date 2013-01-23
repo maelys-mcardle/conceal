@@ -6,16 +6,24 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+
 	this->fileExtension = ".secure";
 	this->cryptoThread = new CryptoThread(this);
 	this->passwordDialog = new PasswordDialog(this);
 	this->encryptDecryptDialog = new EncryptDecryptDialog(this);
+
+	qRegisterMetaType<ProgressType>("ProgressType");
+
 	connect(this->cryptoThread, SIGNAL(finished()), this,
 		SLOT(cryptoThreadDone()));
 	connect(this->cryptoThread, SIGNAL(reportError(QString)), this,
 		SLOT(cryptoError(QString)));
+	connect(this->cryptoThread, SIGNAL(reportComplete(QString)), this,
+		SLOT(cryptoComplete(QString)));
 	connect(this->cryptoThread, SIGNAL(updateProgress(ProgressType,float)),
 		this, SLOT(cryptoStatusUpdate(ProgressType,float)));
+
+	 this->qmlRootObject = ui->declarativeView->rootObject();
 }
 
 MainWindow::~MainWindow()
@@ -27,6 +35,15 @@ void MainWindow::cryptoThreadDone()
 {
 	// Re-enable the drops.
 	this->setAcceptDrops(true);
+
+	// Restore the GUI.
+	qmlRootObject->setProperty("state", "Default");
+}
+
+void MainWindow::cryptoComplete(QString message)
+{
+	QMessageBox::information(this, "I'm finished",
+		message, QMessageBox::Ok);
 }
 
 void MainWindow::cryptoError(QString message)
@@ -75,8 +92,15 @@ void MainWindow::dropEvent(QDropEvent *event)
 		// The user didn't specify anything. Abort.
 		if (outputPath == "") return;
 
+		// Append an extension if missing and required.
+		if (!decrypted && !outputPath.endsWith(this->fileExtension))
+			outputPath.append(this->fileExtension);
+
 		// We're going to execute this. Prevent more drops.
 		this->setAcceptDrops(false);
+
+		// Change the GUI to show the processing mode.
+		qmlRootObject->setProperty("state", "Processing");
 
 		// Setup the crypto thread with the details and execute.
 		this->cryptoThread->setupRun(decrypted, pathList,

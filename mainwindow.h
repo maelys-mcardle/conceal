@@ -26,6 +26,7 @@ public:
 private slots:
 	void cryptoThreadDone();
 	void cryptoError(QString);
+	void cryptoComplete(QString);
 	void cryptoStatusUpdate(ProgressType, float);
 
 private:
@@ -34,6 +35,7 @@ private:
 	EncryptDecryptDialog *encryptDecryptDialog;
 	CryptoThread *cryptoThread;
 	QString fileExtension;
+	QObject *qmlRootObject;
 };
 
 #endif // MAINWINDOW_H

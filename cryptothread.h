@@ -13,6 +13,8 @@ typedef enum {
 	ARCHIVE_TO_PLAINTEXT
 } ProgressType;
 
+
+
 class CryptoThread : public QThread
 {
 	Q_OBJECT
@@ -24,6 +26,7 @@ public:
 signals:
 	void updateProgress(ProgressType, float);
 	void reportError(QString);
+	void reportComplete(QString);
 
 public slots:
 	
