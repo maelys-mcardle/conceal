@@ -258,14 +258,25 @@ Rectangle {
 		},
 
 		State {
-			name: "Processing"
+			name: "Encrypt"
+			PropertyChanges { target: infoMouseArea; enabled: false; }
+			PropertyChanges { target: cancelMouseArea; enabled: true; }
+			PropertyChanges { target: dropText; opacity: 0; }
+			PropertyChanges { target: subtitle; opacity: 1; }
+			PropertyChanges { target: ciphertext; opacity: 0; }
+			PropertyChanges { target: archive; opacity: 0; }
+			PropertyChanges { target: plaintext; opacity: 1; }
+		},
+
+		State {
+			name: "Decrypt"
 			PropertyChanges { target: infoMouseArea; enabled: false; }
 			PropertyChanges { target: cancelMouseArea; enabled: true; }
 			PropertyChanges { target: dropText; opacity: 0; }
 			PropertyChanges { target: subtitle; opacity: 1; }
 			PropertyChanges { target: ciphertext; opacity: 1; }
-			PropertyChanges { target: archive; opacity: 1; }
-			PropertyChanges { target: plaintext; opacity: 1; }
+			PropertyChanges { target: archive; opacity: 0; }
+			PropertyChanges { target: plaintext; opacity: 0; }
 		}
 	]
 

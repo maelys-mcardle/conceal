@@ -101,6 +101,10 @@ void MainWindow::cryptoStatusUpdate(ProgressType type, float progress)
 		this->ciphertextImage->setProperty("opacity", 0);
 		this->progressText->setProperty("text",
 			"Unpacking your files" + percentProgress);
+	} else if (type == ENCRYPTION_MOVING_FILE) {
+		this->progressText->setProperty("text", "Finishing up");
+	} else if (type == DECRYPTION_MOVING_FILE) {
+		this->progressText->setProperty("text", "Moving files");
 	}
 }
 
@@ -143,7 +147,8 @@ void MainWindow::dropEvent(QDropEvent *event)
 		this->setAcceptDrops(false);
 
 		// Change the GUI to show the processing mode.
-		qmlRootObject->setProperty("state", "Processing");
+		if (decrypted) qmlRootObject->setProperty("state", "Decrypt");
+		else qmlRootObject->setProperty("state", "Encrypt");
 
 		// Setup the crypto thread with the details and execute.
 		this->cryptoThread->setupRun(decrypted, pathList,
