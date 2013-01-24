@@ -4,10 +4,6 @@
         <file alias="plaintext.png">oxygen-icons/application-x-zerosize.png</file>
         <file alias="key.png">oxygen-icons/dialog-password.png</file>
         <file alias="archive.png">oxygen-icons/application-x-compress.png</file>
-        <file alias="ciphertext.svg">oxygen-icons/application-pgp-keys.svg</file>
-        <file alias="key.svg">oxygen-icons/dialog-password.svg</file>
-        <file alias="plaintext.svg">oxygen-icons/application-x-zerosize.svg</file>
-        <file alias="archive.svg">oxygen-icons/application-x-compress.svg</file>
     </qresource>
     <qresource prefix="/qml">
         <file>droparea.qml</file>

@@ -432,8 +432,8 @@ QStringList CryptoThread::getAllSubdirectories(QStringList inputPaths)
 		outputPaths << inputPath;
 
 		QDirIterator directories(inputPath,
-			QDir::AllEntries | QDir::NoSymLinks | QDir::NoDotAndDotDot,
-			QDirIterator::Subdirectories);
+			QDir::AllEntries | QDir::NoSymLinks | QDir::NoDotAndDotDot |
+			QDir::Hidden, QDirIterator::Subdirectories);
 
 		while(directories.hasNext()){
 			directories.next();
