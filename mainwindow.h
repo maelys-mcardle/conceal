@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtGui>
+#include <QtDeclarative>
 #include "cryptothread.h"
 #include "passworddialog.h"
 #include "encryptdecryptdialog.h"
@@ -22,6 +23,8 @@ public:
 	void dragMoveEvent(QDragMoveEvent* event);
 	void dragLeaveEvent(QDragLeaveEvent* event);
 	bool isDecrypt(QStringList, bool *);
+	Q_INVOKABLE void cancelCrypto();
+	QString getOutputPath(bool);
 
 private slots:
 	void cryptoThreadDone();
@@ -36,6 +39,10 @@ private:
 	CryptoThread *cryptoThread;
 	QString fileExtension;
 	QObject *qmlRootObject;
+	QObject *ciphertextImage;
+	QObject *plaintextImage;
+	QObject *archiveImage;
+	QObject *progressText;
 };
 
 #endif // MAINWINDOW_H

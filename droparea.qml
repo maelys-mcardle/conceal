@@ -19,6 +19,7 @@ Rectangle {
 
 	Text {
 		id: subtitle
+		objectName: "progressText"
 		text: "Putting all the files together"
 		color: "white"
 		anchors.horizontalCenter: parent.horizontalCenter
@@ -28,6 +29,7 @@ Rectangle {
 
 	Image {
 		id: plaintext
+		objectName: "plaintextImage"
 		anchors.verticalCenter: parent.verticalCenter
 		anchors.horizontalCenter: parent.horizontalCenter
 		opacity: 0
@@ -36,6 +38,7 @@ Rectangle {
 
 	Image {
 		id: archive
+		objectName: "archiveImage"
 		anchors.verticalCenter: parent.verticalCenter
 		anchors.horizontalCenter: parent.horizontalCenter
 		opacity: 0
@@ -44,6 +47,7 @@ Rectangle {
 
 	Image {
 		id: ciphertext
+		objectName: "ciphertextImage"
 		anchors.verticalCenter: parent.verticalCenter
 		anchors.horizontalCenter: parent.horizontalCenter
 		opacity: 0
@@ -52,18 +56,12 @@ Rectangle {
 
 	MouseArea {
 		id: infoMouseArea
-		x: 0
-		y: 0
+		anchors.left: parent.left
+		anchors.top: parent.top
 		width: parent.width/3
 		height: parent.height
 		hoverEnabled: true
-		onHoveredChanged: {
-			if (infoMouseArea.containsMouse) master.state = "HintInfo";
-			else master.state = "HideInfo";
-		}
-		onClicked: {
-			master.state = "ShowInfo"
-		}
+		onClicked: { infoBackground.state = "ShowInfo"; }
 	}
 
 	Rectangle {
@@ -99,6 +97,7 @@ Rectangle {
 			Text {
 				id: infoTooltip
 				text: "click for information"
+				font.italic: true
 				anchors.top: parent.top
 				anchors.left: parent.left
 				color: "white"
@@ -127,55 +126,130 @@ Rectangle {
 				opacity: 0
 			}
 		}
+
+
+		states: [
+			State {
+				name: "HintInfo"
+				when: (infoMouseArea.containsMouse)
+				PropertyChanges { target: infoBackground; opacity: 1; }
+				PropertyChanges { target: infoTooltip; opacity: 1; }
+			},
+
+			State {
+				name: "HideInfo"
+				when: (!infoMouseArea.containsMouse)
+				PropertyChanges { target: infoText; opacity: 0; }
+				PropertyChanges { target: infoTitle; opacity: 0; }
+				PropertyChanges { target: infoBackground; opacity: 0; }
+				PropertyChanges { target: infoTooltip; opacity: 0; }
+			},
+
+			State {
+				name: "ShowInfo"
+				PropertyChanges { target: infoText; opacity: 1; }
+				PropertyChanges { target: infoTitle; opacity: 1; }
+				PropertyChanges { target: infoBackground; opacity: 1; }
+				PropertyChanges { target: infoTooltip; opacity: 0; }
+			}
+		]
+
+		transitions: Transition {
+			NumberAnimation { properties: "opacity"; easing.type: Easing.InOutQuad }
+		}
 	}
 
-
-states: [
-	State {
-		name: "Default"
-		PropertyChanges { target: infoMouseArea; enabled: true; }
-		PropertyChanges { target: dropText; opacity: 1; }
-		PropertyChanges { target: subtitle; opacity: 0; }
-		PropertyChanges { target: ciphertext; opacity: 0; }
-		PropertyChanges { target: archive; opacity: 0; }
-		PropertyChanges { target: plaintext; opacity: 0; }
-	},
-
-	State {
-		name: "Processing"
-		PropertyChanges { target: infoMouseArea; enabled: false; }
-		PropertyChanges { target: dropText; opacity: 0; }
-		PropertyChanges { target: subtitle; opacity: 1; }
-		PropertyChanges { target: ciphertext; opacity: 1; }
-		PropertyChanges { target: archive; opacity: 1; }
-		PropertyChanges { target: plaintext; opacity: 1; }
-	},
-
-	State {
-		name: "HintInfo"
-		PropertyChanges { target: infoBackground; opacity: 1; }
-		PropertyChanges { target: infoTooltip; opacity: 1; }
-	},
-
-	State {
-		name: "HideInfo"
-		PropertyChanges { target: infoText; opacity: 0; }
-		PropertyChanges { target: infoTitle; opacity: 0; }
-		PropertyChanges { target: infoBackground; opacity: 0; }
-		PropertyChanges { target: infoTooltip; opacity: 0; }
-	},
-
-	State {
-		name: "ShowInfo"
-		PropertyChanges { target: infoText; opacity: 1; }
-		PropertyChanges { target: infoTitle; opacity: 1; }
-		PropertyChanges { target: infoBackground; opacity: 1; }
-		PropertyChanges { target: infoTooltip; opacity: 0; }
+	MouseArea {
+		id: cancelMouseArea
+		enabled: false
+		anchors.right: parent.right
+		anchors.top: parent.top
+		width: parent.width/3
+		height: parent.height
+		hoverEnabled: true
+		onClicked: { mainWindow.cancelCrypto(); }
 	}
-]
 
-transitions: Transition {
-	NumberAnimation { properties: "opacity"; easing.type: Easing.InOutQuad }
-}
+	Rectangle {
+		id: cancelBackground
+		rotation: 270
+		anchors.centerIn: parent
+		width: parent.height
+		height: parent.width
+		opacity: 0
+		gradient: Gradient {
+			GradientStop { position: 1; color: "#d0900000"; }
+			GradientStop { position: 0.5; color: "#d01e1414"; }
+			GradientStop { position: 0; color: "#d01e1414"; }
+		}
 
+		Item {
+			id: deRotateCancel
+			rotation: 90
+			width: parent.height - 20
+			height: parent.width - 20
+			anchors.centerIn: parent
+
+			Text {
+				id: cancelText
+				anchors.right: parent.right
+				anchors.verticalCenter: parent.verticalCenter
+				text: "Cancel"
+				font.pixelSize: 24
+				color: "white"
+				opacity: 0
+			}
+		}
+
+		states: [
+			State {
+				name: "ShowCancel"
+				when: (cancelMouseArea.containsMouse)
+				PropertyChanges { target: cancelBackground; opacity: 1; }
+				PropertyChanges { target: cancelText; opacity: 1; }
+			},
+
+			State {
+				name: "HideCancel"
+				when: (!cancelMouseArea.containsMouse)
+				PropertyChanges { target: cancelBackground; opacity: 0; }
+				PropertyChanges { target: cancelText; opacity: 0; }
+			}
+		]
+
+		transitions: Transition {
+			NumberAnimation { properties: "opacity"; easing.type: Easing.InOutQuad }
+		}
+
+	}
+
+	states: [
+		State {
+			name: "Default"
+			PropertyChanges { target: infoMouseArea; enabled: true; }
+			PropertyChanges { target: cancelMouseArea; enabled: false; }
+			PropertyChanges { target: cancelBackground; opacity: 0; }
+			PropertyChanges { target: cancelText; opacity: 0; }
+			PropertyChanges { target: dropText; opacity: 1; }
+			PropertyChanges { target: subtitle; opacity: 0; }
+			PropertyChanges { target: ciphertext; opacity: 0; }
+			PropertyChanges { target: archive; opacity: 0; }
+			PropertyChanges { target: plaintext; opacity: 0; }
+		},
+
+		State {
+			name: "Processing"
+			PropertyChanges { target: infoMouseArea; enabled: false; }
+			PropertyChanges { target: cancelMouseArea; enabled: true; }
+			PropertyChanges { target: dropText; opacity: 0; }
+			PropertyChanges { target: subtitle; opacity: 1; }
+			PropertyChanges { target: ciphertext; opacity: 1; }
+			PropertyChanges { target: archive; opacity: 1; }
+			PropertyChanges { target: plaintext; opacity: 1; }
+		}
+	]
+
+	transitions: Transition {
+		NumberAnimation { properties: "opacity"; easing.type: Easing.InOutQuad }
+	}
 }

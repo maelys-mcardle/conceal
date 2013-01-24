@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	this->fileExtension = ".secure";
+	this->fileExtension = "secure";
 	this->cryptoThread = new CryptoThread(this);
 	this->passwordDialog = new PasswordDialog(this);
 	this->encryptDecryptDialog = new EncryptDecryptDialog(this);
@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(this->cryptoThread, SIGNAL(finished()), this,
 		SLOT(cryptoThreadDone()));
+	connect(this->cryptoThread, SIGNAL(terminated()), this,
+		SLOT(cryptoThreadDone()));
 	connect(this->cryptoThread, SIGNAL(reportError(QString)), this,
 		SLOT(cryptoError(QString)));
 	connect(this->cryptoThread, SIGNAL(reportComplete(QString)), this,
@@ -23,7 +25,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(this->cryptoThread, SIGNAL(updateProgress(ProgressType,float)),
 		this, SLOT(cryptoStatusUpdate(ProgressType,float)));
 
-	 this->qmlRootObject = ui->declarativeView->rootObject();
+	this->qmlRootObject = ui->declarativeView->rootObject();
+	this->ciphertextImage = this->qmlRootObject->findChild<QObject*>("ciphertextImage");
+	this->plaintextImage = this->qmlRootObject->findChild<QObject*>("plaintextImage");
+	this->archiveImage = this->qmlRootObject->findChild<QObject*>("archiveImage");
+	this->progressText = this->qmlRootObject->findChild<QObject*>("progressText");
+
+	ui->declarativeView->rootContext()->setContextProperty("mainWindow", this);
 }
 
 MainWindow::~MainWindow()
@@ -40,6 +48,17 @@ void MainWindow::cryptoThreadDone()
 	qmlRootObject->setProperty("state", "Default");
 }
 
+void MainWindow::cancelCrypto()
+{
+	int response = QMessageBox::question(this, "Warning",
+		"Are you sure you want to cancel? I'll continue\n"
+		"working in the background while you decide.",
+		QMessageBox::Yes | QMessageBox::No);
+
+	if (response == QMessageBox::Yes)
+		this->cryptoThread->terminate();
+}
+
 void MainWindow::cryptoComplete(QString message)
 {
 	QMessageBox::information(this, "I'm finished",
@@ -54,7 +73,34 @@ void MainWindow::cryptoError(QString message)
 
 void MainWindow::cryptoStatusUpdate(ProgressType type, float progress)
 {
+	QString percentProgress;
+	percentProgress.sprintf(" (%.2f%%)", progress * 100);
 
+	if (type == PLAINTEXT_TO_ARCHIVE) {
+		this->plaintextImage->setProperty("opacity", 1-progress);
+		this->archiveImage->setProperty("opacity", progress);
+		this->ciphertextImage->setProperty("opacity", 0);
+		this->progressText->setProperty("text",
+			"Packaging your files" + percentProgress);
+	} else if (type == ARCHIVE_TO_CIPHERTEXT) {
+		this->plaintextImage->setProperty("opacity", 0);
+		this->archiveImage->setProperty("opacity", 1-progress);
+		this->ciphertextImage->setProperty("opacity", progress);
+		this->progressText->setProperty("text",
+			"Encrypting your files" + percentProgress);
+	} else if (type == CIPHERTEXT_TO_ARCHIVE) {
+		this->plaintextImage->setProperty("opacity", 0);
+		this->archiveImage->setProperty("opacity", progress);
+		this->ciphertextImage->setProperty("opacity", 1-progress);
+		this->progressText->setProperty("text",
+			"Decrypting your files" + percentProgress);
+	} else if (type == ARCHIVE_TO_PLAINTEXT) {
+		this->plaintextImage->setProperty("opacity", progress);
+		this->archiveImage->setProperty("opacity", 1-progress);
+		this->ciphertextImage->setProperty("opacity", 0);
+		this->progressText->setProperty("text",
+			"Unpacking your files" + percentProgress);
+	}
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
@@ -82,19 +128,10 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 		// If it's decryption, as the output directory. Otherwise
 		// ask where to save the encrypted file.
-		QString outputPath = (decrypted) ?
-			QFileDialog::getExistingDirectory(this,
-				"Select where to place the decrypted files", ""):
-			QFileDialog::getSaveFileName(this,
-				"Choose where your encrypted file will go",
-				"", "*" + this->fileExtension);
+		QString outputPath = getOutputPath(decrypted);
 
 		// The user didn't specify anything. Abort.
 		if (outputPath == "") return;
-
-		// Append an extension if missing and required.
-		if (!decrypted && !outputPath.endsWith(this->fileExtension))
-			outputPath.append(this->fileExtension);
 
 		// We're going to execute this. Prevent more drops.
 		this->setAcceptDrops(false);
@@ -107,6 +144,47 @@ void MainWindow::dropEvent(QDropEvent *event)
 			outputPath, encryptionKey);
 		this->cryptoThread->start();
 	}
+}
+
+QString MainWindow::getOutputPath(bool decrypt)
+{
+	// Ask the user for a path.
+	QString path = (decrypt) ?
+		QFileDialog::getExistingDirectory(this,
+			"Select where to place the decrypted files", ""):
+		QFileDialog::getSaveFileName(this,
+			"Choose where your encrypted file will go",
+			"", "Encrypted Files (*." + this->fileExtension + ")");
+
+	// If it's empty, abort.
+	if (path.isEmpty()) return path;
+
+	// If it was a file, and it already exists after adding a missing
+	// file extension, warn the user.
+	if (!decrypt && !path.endsWith(this->fileExtension)) {
+		path.append("." + this->fileExtension);
+		if (QFileInfo(path).exists() &&
+			QMessageBox::question(this, "Overwrite file?",
+			"The file " + QFileInfo(path).fileName() + " already exists.\n"
+			"Do you want to overwrite it?", QMessageBox::Yes |
+			QMessageBox::No) == QMessageBox::No) {
+			path = this->getOutputPath(decrypt);
+		}
+	}
+
+	// If it's a directory, and not empty, warn the user.
+	if (decrypt && QDir(path).entryList(QDir::NoDotAndDotDot |
+		QDir::AllEntries).size() > 0) {
+		if (QMessageBox::question(this, "The directory has stuff in it",
+			"The directory you selected isn't empty. This means\n"
+			"that some stuff inside could get over-written. Do you\n"
+			"want to pick a different directory?", QMessageBox::Yes |
+			QMessageBox::No) == QMessageBox::Yes) {
+			path = this->getOutputPath(decrypt);
+		}
+	}
+
+	return path;
 }
 
 bool MainWindow::isDecrypt(QStringList files, bool *ok)

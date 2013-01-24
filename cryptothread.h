@@ -43,7 +43,7 @@ private:
 	QByteArray getFileManifest(QStringList, QString);
 	bool decrypt;
 	int encryptionBlockSize;
-	quint64 copyChunkSize;
+	qint64 copyChunkSize;
 	QStringList pathIn;
 	QString rootPathIn;
 	QString pathOut;

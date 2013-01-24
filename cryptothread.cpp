@@ -13,8 +13,8 @@ void CryptoThread::run()
 	if (this->pathIn.size() == 0) return;
 
 	// Open MCRYPT. Abort on fail.
-	MCRYPT td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, NULL,
-		MCRYPT_CBC, NULL);
+	MCRYPT td = mcrypt_module_open(QByteArray(MCRYPT_RIJNDAEL_128).data(),
+		NULL, QByteArray(MCRYPT_CBC).data(), NULL);
 	if (td == MCRYPT_FAILED) {
 		reportError("A part of the software that's needed to make\n"
 			"the encryption happen broke. (Module open failure.)");
@@ -51,6 +51,9 @@ void CryptoThread::run()
 
 void CryptoThread::decryptFiles(MCRYPT td)
 {
+	// Update GUI.
+	updateProgress(CIPHERTEXT_TO_ARCHIVE, 0);
+
 	// Success count.
 	int successes = 0, failures = 0;
 
@@ -82,6 +85,9 @@ void CryptoThread::decryptFiles(MCRYPT td)
 
 void CryptoThread::encryptFiles(MCRYPT td)
 {
+	// Update GUI.
+	updateProgress(PLAINTEXT_TO_ARCHIVE, 0);
+
 	// Archive the files, then encrypt the archive.
 	QTemporaryFile archiveFile, encryptedFile;
 	bool archiveOK = this->archiveFiles(this->pathIn,
@@ -143,7 +149,14 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 	QString initialDirectory = QDir::currentPath();
 	QDir::setCurrent(outputDir);
 
+	// Count the number of files.
+	int numberOfFiles = 0;
+	foreach (QString entry, manifestEntries) {
+		if (entry.startsWith("f")) numberOfFiles++;
+	}
+
 	// Go through each entry.
+	int fileCount = 0;
 	for (int entryNo = 0; entryNo < manifestEntries.size(); entryNo++) {
 
 		// Load the entry.
@@ -160,7 +173,7 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 		if (entryFields.at(0) == "f" && entryFields.size() > 1) {
 
 			// Get the size and name of the file.
-			quint64 fileSize = entryFields.at(1).toUInt();
+			qint64 fileSize = entryFields.at(1).toInt();
 			QString filePath = entryFields.at(2);
 
 			// Create a temporary file.
@@ -173,14 +186,14 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 
 			// Store the contents.
 			QByteArray block(this->copyChunkSize, 0);
-			for (quint64 i = fileSize ;; i -= this->copyChunkSize) {
+			float singleEntrySize = 1. / (float) numberOfFiles;
+			for (qint64 i = fileSize ;; i -= this->copyChunkSize) {
 
 				// Update the status for the UI.
-				float singleElementSize = 1 / manifestEntries.size();
 				updateProgress(ARCHIVE_TO_PLAINTEXT,
-					singleElementSize * entryNo +
-					singleElementSize * archiveFile->pos() /
-					archiveFile->size());
+					singleEntrySize * (float) fileCount +
+					singleEntrySize * (float) archiveFile->pos() /
+					(float) archiveFile->size());
 
 				// See how much data to transfer.
 				int amountToCopy = (i < this->copyChunkSize) ? i :
@@ -199,6 +212,9 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 
 			// Move the temporary file.
 			this->renameTempFile(&temporaryFile, filePath);
+
+			// Keep track of the files.
+			fileCount++;
 		}
 	}
 
@@ -247,13 +263,14 @@ bool CryptoThread::archiveFiles(QStringList inputFilePaths,
 		}
 
 		// Copy the data.
+		float singleElementSize = 1. / inputFilePaths.size();
 		while (!plaintext.atEnd()) {
 
 			// Update the status for the UI.
-			float singleElementSize = 1 / inputFilePaths.size();
 			updateProgress(PLAINTEXT_TO_ARCHIVE,
-				singleElementSize * inputFilePaths.size() +
-				singleElementSize * plaintext.pos() / plaintext.size());
+				singleElementSize * i +
+				singleElementSize * (float) plaintext.pos()
+				/ (float) plaintext.size());
 
 			// Copy the data.
 			QByteArray buffer(this->copyChunkSize, 0);
@@ -288,11 +305,15 @@ bool CryptoThread::encryptFile(MCRYPT td, QTemporaryFile *plaintext,
 	ciphertext->write(firstBlock.data(), firstBlock.size());
 
 	// Encrypt the file.
+	qint64 lastProgressUpdate = 0;
 	while (!plaintext->atEnd()) {
 
 		// Update the status for the UI.
-		updateProgress(ARCHIVE_TO_CIPHERTEXT,
-			plaintext->pos() / plaintext->size());
+		if (plaintext->pos() > lastProgressUpdate + this->copyChunkSize) {
+			updateProgress(ARCHIVE_TO_CIPHERTEXT,
+				(float) plaintext->pos() / (float) plaintext->size());
+			lastProgressUpdate = plaintext->pos();
+		}
 
 		// Read the data in blocks.
 		QByteArray block(this->encryptionBlockSize, 0);
@@ -330,12 +351,16 @@ bool CryptoThread::decryptFile(MCRYPT td, QString encryptedFilePath,
 	}
 
 	// Decrypt the file.
-	quint64 firstBlock = true;
+	qint64 firstBlock = true;
+	qint64 lastProgressUpdate = 0;
 	while (!encryptedFile.atEnd()) {	
 
 		// Update the status for the UI.
-		updateProgress(CIPHERTEXT_TO_ARCHIVE,
-			encryptedFile.pos() / encryptedFile.size());
+		if (encryptedFile.pos() > lastProgressUpdate + this->copyChunkSize) {
+			updateProgress(CIPHERTEXT_TO_ARCHIVE,
+				(float) encryptedFile.pos() / (float) encryptedFile.size());
+			lastProgressUpdate = encryptedFile.pos();
+		}
 
 		// Read the data in blocks.
 		QByteArray block(this->encryptionBlockSize, 0);
