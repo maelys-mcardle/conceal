@@ -9,8 +9,9 @@
         <file>droparea.qml</file>
     </qresource>
     <qresource prefix="/text">
-        <file>LICENSE</file>
-        <file>oxygen-icons/LICENSE</file>
-        <file>LICENSE-MCRYPT</file>
+        <file>licenses/GPLv2</file>
+        <file>licenses/GPLv3</file>
+        <file>licenses/LGPLv3</file>
+        <file>licenses/LGPLv21</file>
     </qresource>
 </RCC>

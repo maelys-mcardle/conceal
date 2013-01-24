@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tabSoftware">
       <attribute name="title">
-       <string>Software License</string>
+       <string>Conceal's License</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -35,7 +35,7 @@
      </widget>
      <widget class="QWidget" name="tabMCRYPT">
       <attribute name="title">
-       <string>Cryptographic Library</string>
+       <string>MCRYPT (Cryptographic Library)</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
@@ -49,7 +49,7 @@
      </widget>
      <widget class="QWidget" name="tabOxygen">
       <attribute name="title">
-       <string>Icons</string>
+       <string>Oxygen Project (Icons)</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -61,6 +61,16 @@
           <bool>true</bool>
          </property>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabQt">
+      <attribute name="title">
+       <string>Qt (GUI)</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QPlainTextEdit" name="lgpl21Text"/>
        </item>
       </layout>
      </widget>
