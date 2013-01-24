@@ -38,3 +38,7 @@ OTHER_FILES += \
 
 LIBS += \
 	-lmcrypt
+
+win32 {
+	RC_FILE = windowsicon.rc
+}

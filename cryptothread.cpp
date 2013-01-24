@@ -394,8 +394,9 @@ QByteArray CryptoThread::getFileManifest(QStringList filePaths,
 
 		QFileInfo info(filePath);
 		QString condensedPath = filePath.remove(0, fileBase.size());
-		if (condensedPath.startsWith(QDir::separator()))
+		if (condensedPath.startsWith("/"))
 			condensedPath.remove(0, 1);
+
 		if (info.isDir()) {
 			manifest.append("d " + condensedPath.toUtf8() + "\n");
 		} else {
