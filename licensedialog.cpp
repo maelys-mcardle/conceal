@@ -7,16 +7,22 @@ LicenseDialog::LicenseDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	QFile gplFile(":/text/LICENSE");
-	if (gplFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		ui->gplText->setPlainText(gplFile.readAll());
-		gplFile.close();
+	QFile gpl3File(":/text/LICENSE");
+	if (gpl3File.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		ui->gpl3Text->setPlainText(gpl3File.readAll());
+		gpl3File.close();
 	}
 
-	QFile oxygenFile(":/text/oxygen-icons/README");
-	if (oxygenFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		ui->oxygenText->setPlainText(oxygenFile.readAll());
-		oxygenFile.close();
+	QFile gpl2File(":/text/LICENSE-MCRYPT");
+	if (gpl2File.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		ui->gpl2Text->setPlainText(gpl2File.readAll());
+		gpl2File.close();
+	}
+
+	QFile lgpl3File(":/text/oxygen-icons/LICENSE");
+	if (lgpl3File.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		ui->lgpl3Text->setPlainText(lgpl3File.readAll());
+		lgpl3File.close();
 	}
 }
 

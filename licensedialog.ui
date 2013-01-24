@@ -19,13 +19,27 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tabGPL">
+     <widget class="QWidget" name="tabSoftware">
       <attribute name="title">
-       <string>LGPLv3</string>
+       <string>Software License</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QPlainTextEdit" name="gplText">
+        <widget class="QPlainTextEdit" name="gpl3Text">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabMCRYPT">
+      <attribute name="title">
+       <string>Cryptographic Library</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QPlainTextEdit" name="gpl2Text">
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -35,11 +49,11 @@
      </widget>
      <widget class="QWidget" name="tabOxygen">
       <attribute name="title">
-       <string>Oxygen Icons</string>
+       <string>Icons</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QPlainTextEdit" name="oxygenText">
+        <widget class="QPlainTextEdit" name="lgpl3Text">
          <property name="lineWrapMode">
           <enum>QPlainTextEdit::WidgetWidth</enum>
          </property>

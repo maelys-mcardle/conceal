@@ -10,6 +10,7 @@
     </qresource>
     <qresource prefix="/text">
         <file>LICENSE</file>
-        <file>oxygen-icons/README</file>
+        <file>oxygen-icons/LICENSE</file>
+        <file>LICENSE-MCRYPT</file>
     </qresource>
 </RCC>
