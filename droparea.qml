@@ -113,20 +113,38 @@ Rectangle {
 				width: master.width - 30
 				text: "\nConceal is a program to encrypt and decrypt files. " +
 				"It's intent is to bring privacy to those would want it, " +
-				"but might be hesitant to use more comprehensive packages " +
-				"like TrueCrypt.\n\n" +
+				"but might be hesitant to use more complicated products.\n\n " +
 				"This software uses 128-bit RIJNDAEL encryption, implemented by the " +
-				"MCRYPT library. The cryptographic key is the MD5 hash of the supplied " +
-				"password. This program was developed using Qt.\n\n" +
-				"Released under the terms of the GPLv2."
+				"MCRYPT library. The included icons were designed by the Oxygen " +
+				"Project and are distributed under an LGPLv3 license. This " +
+				"program was developed using Qt.\n\n" +
+				"Released under the terms of the LGPLv3."
 				color: "white"
 				style: Text.Raised
 				styleColor: "gray"
 				wrapMode: Text.WordWrap
 				opacity: 0
 			}
-		}
 
+			Text {
+				id: infoLicenseLink
+				anchors.left: parent.left
+				anchors.bottom: parent.bottom
+				font.underline: true
+				text: "Full License"
+				color: "yellow"
+				opacity: 0
+
+				MouseArea {
+					id: infoLicenseMouseArea
+					anchors.left: parent.left
+					anchors.top: parent.top
+					width: parent.width
+					height: parent.height
+					onClicked: { mainWindow.showLicense(); }
+				}
+			}
+		}
 
 		states: [
 			State {
@@ -143,6 +161,7 @@ Rectangle {
 				PropertyChanges { target: infoTitle; opacity: 0; }
 				PropertyChanges { target: infoBackground; opacity: 0; }
 				PropertyChanges { target: infoTooltip; opacity: 0; }
+				PropertyChanges { target: infoLicenseLink; opacity: 0; }
 			},
 
 			State {
@@ -151,6 +170,7 @@ Rectangle {
 				PropertyChanges { target: infoTitle; opacity: 1; }
 				PropertyChanges { target: infoBackground; opacity: 1; }
 				PropertyChanges { target: infoTooltip; opacity: 0; }
+				PropertyChanges { target: infoLicenseLink; opacity: 1; }
 			}
 		]
 

@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->cryptoThread = new CryptoThread(this);
 	this->passwordDialog = new PasswordDialog(this);
 	this->encryptDecryptDialog = new EncryptDecryptDialog(this);
+	this->licenseDialog = new LicenseDialog(this);
 
 	qRegisterMetaType<ProgressType>("ProgressType");
 
@@ -101,6 +102,11 @@ void MainWindow::cryptoStatusUpdate(ProgressType type, float progress)
 		this->progressText->setProperty("text",
 			"Unpacking your files" + percentProgress);
 	}
+}
+
+void MainWindow::showLicense()
+{
+	this->licenseDialog->show();
 }
 
 void MainWindow::dropEvent(QDropEvent *event)

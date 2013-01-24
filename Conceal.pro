@@ -16,16 +16,19 @@ SOURCES += main.cpp\
         mainwindow.cpp \
 	passworddialog.cpp \
 	cryptothread.cpp \
-    encryptdecryptdialog.cpp
+    encryptdecryptdialog.cpp \
+    licensedialog.cpp
 
 HEADERS  += mainwindow.h \
 	passworddialog.h \
     cryptothread.h \
-    encryptdecryptdialog.h
+    encryptdecryptdialog.h \
+    licensedialog.h
 
 FORMS    += mainwindow.ui \
     passworddialog.ui \
-    encryptdecryptdialog.ui
+    encryptdecryptdialog.ui \
+    licensedialog.ui
 
 RESOURCES += \
     resource.qrc

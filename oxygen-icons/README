@@ -1,0 +1,9 @@
+"Oxygen Icons can be used with computer programmes, including proprietry applications or ones covered by non-GPL licences.
+
+In your source code you must include a copy of the LGPLv3 licence text making it clear which files it applies to and point to http://www.oxygen-icons.org/. You must also include the SVG of the relevant icons even if they are not used by the application (this is the preferred modifiable form).
+
+With your application binary you must also include a copy of the LGPLv3 licence text making it clear which files it applies to and point to http://www.oxygen-icons.org/. If you do not include the icon SVGs you must make it clear how the user can get them (for a free software application this will be as part of the source code).
+
+There is one license issue to watch for with proprietary applications, you should not embed the icon into the application binary. This happens if you use Qt resource files or .net linking. This would mean the whole application is now LGPL. Instead you should keep the .png as a separate file and load it at runtime. (There are provisions in the LGPL for allowing this if you have a mechanism to relink to a modified version but most applications do not have such a mechanism)."
+
+-- http://techbase.kde.org/Projects/Oxygen/Licensing

@@ -6,6 +6,7 @@
 #include "cryptothread.h"
 #include "passworddialog.h"
 #include "encryptdecryptdialog.h"
+#include "licensedialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,6 +25,7 @@ public:
 	void dragLeaveEvent(QDragLeaveEvent* event);
 	bool isDecrypt(QStringList, bool *);
 	Q_INVOKABLE void cancelCrypto();
+	Q_INVOKABLE void showLicense();
 	QString getOutputPath(bool);
 
 private slots:
@@ -36,6 +38,7 @@ private:
 	Ui::MainWindow *ui;
 	PasswordDialog *passwordDialog;
 	EncryptDecryptDialog *encryptDecryptDialog;
+	LicenseDialog *licenseDialog;
 	CryptoThread *cryptoThread;
 	QString fileExtension;
 	QObject *qmlRootObject;
