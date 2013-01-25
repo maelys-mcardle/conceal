@@ -102,7 +102,7 @@ void MainWindow::cryptoStatusUpdate(ProgressType type, float progress)
 		this->progressText->setProperty("text",
 			"Unpacking your files" + percentProgress);
 	} else if (type == ENCRYPTION_MOVING_FILE) {
-		this->progressText->setProperty("text", "Finishing up");
+		this->progressText->setProperty("text", "Finishing Up");
 	} else if (type == DECRYPTION_MOVING_FILE) {
 		this->progressText->setProperty("text", "Moving files");
 	}

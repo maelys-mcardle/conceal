@@ -72,10 +72,9 @@ void CryptoThread::decryptFiles(MCRYPT td)
 	if (failures == 0) {
 		reportComplete("All done. Your files are found here:\n" +
 			this->pathOut);
-	} else {
-		reportComplete(QString("%1 of the %2 files had some kind of\n"
-			"problem and couldn't be decrypted.")
-			.arg(failures).arg(failures + successes));
+	} else if (successes > 0 && failures > 0) {
+		reportComplete("Done, but there were problems reading\n"
+			"some of the files.");
 	}
 }
 
@@ -91,13 +90,14 @@ void CryptoThread::encryptFiles(MCRYPT td)
 	// If all works, store the file.
 	if (archiveOK && encryptionOK) {
 		updateProgress(ENCRYPTION_MOVING_FILE, 1);
-		this->renameTempFile(&encryptedFile, this->pathOut);
-		reportComplete("All done. Your secure file is found here:\n" +
-			this->pathOut);
+		if (this->renameTempFile(&encryptedFile, this->pathOut)) {
+			reportComplete("All done. Your secure file is found here:\n"
+				+ this->pathOut);
+		}
 	}
 }
 
-void CryptoThread::renameTempFile(QTemporaryFile *file, QString path)
+bool CryptoThread::renameTempFile(QTemporaryFile *file, QString path)
 {
 	// There might be a file in the way. Remove if so.
 	if (QFileInfo(path).exists()) {
@@ -110,7 +110,10 @@ void CryptoThread::renameTempFile(QTemporaryFile *file, QString path)
 	} else {
 		reportError("The computer wouldn't let me create the file\n"
 			+ path);
+		return false;
 	}
+
+	return true;
 }
 
 bool CryptoThread::unarchiveFiles(QString archiveFilePath,
@@ -210,7 +213,8 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 
 			// Move the temporary file.
 			updateProgress(DECRYPTION_MOVING_FILE, 1);
-			this->renameTempFile(&temporaryFile, filePath);
+			if (!this->renameTempFile(&temporaryFile, filePath))
+				return false;
 
 			// Keep track of the files.
 			fileCount++;

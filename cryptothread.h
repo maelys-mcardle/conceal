@@ -39,7 +39,7 @@ private:
 	bool unarchiveFiles(QString, QTemporaryFile *, QString);
 	bool encryptFile(MCRYPT, QTemporaryFile *, QTemporaryFile *);
 	bool decryptFile(MCRYPT, QString, QTemporaryFile *);
-	void renameTempFile(QTemporaryFile *, QString);
+	bool renameTempFile(QTemporaryFile *, QString);
 	QStringList getAllSubdirectories(QStringList);
 	QString getRootPath(QStringList);
 	QByteArray getFileManifest(QStringList, QString);
