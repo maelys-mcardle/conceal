@@ -40,6 +40,7 @@ private:
 	bool encryptFile(MCRYPT, QTemporaryFile *, QTemporaryFile *);
 	bool decryptFile(MCRYPT, QString, QTemporaryFile *);
 	bool renameTempFile(QTemporaryFile *, QString);
+	QString toNativeSeparators(QString);
 	QStringList getAllSubdirectories(QStringList);
 	QString getRootPath(QStringList);
 	QByteArray getFileManifest(QStringList, QString);

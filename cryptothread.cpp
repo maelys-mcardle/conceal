@@ -71,7 +71,7 @@ void CryptoThread::decryptFiles(MCRYPT td)
 	// Inform of situation.
 	if (failures == 0) {
 		reportComplete("All done. Your files are found here:\n" +
-			this->pathOut);
+			toNativeSeparators(this->pathOut));
 	} else if (successes > 0 && failures > 0) {
 		reportComplete("Done, but there were problems reading\n"
 			"some of the files.");
@@ -92,7 +92,7 @@ void CryptoThread::encryptFiles(MCRYPT td)
 		updateProgress(ENCRYPTION_MOVING_FILE, 1);
 		if (this->renameTempFile(&encryptedFile, this->pathOut)) {
 			reportComplete("All done. Your secure file is found here:\n"
-				+ this->pathOut);
+				+ toNativeSeparators(this->pathOut));
 		}
 	}
 }
@@ -109,7 +109,7 @@ bool CryptoThread::renameTempFile(QTemporaryFile *file, QString path)
 		file->setAutoRemove(false);
 	} else {
 		reportError("The computer wouldn't let me create the file\n"
-			+ path);
+			+ toNativeSeparators(path));
 		return false;
 	}
 
@@ -134,7 +134,7 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 	in >> valueA >> valueB >> valueXor;
 	if ((valueXor ^ valueB) != valueA) {
 		reportError("The password wasn't the right one for the file\n"
-			+ archiveFilePath);
+			+ toNativeSeparators(archiveFilePath));
 		return false;
 	}
 
@@ -166,7 +166,8 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 
 		// If it's a directory, create it.
 		if (entryFields.at(0) == "d" && entryFields.size() > 0) {
-			QDir().mkdir(entryFields.at(1));
+			entryFields.removeAt(0);
+			QDir().mkpath(entryFields.join(" "));
 			continue;
 		}
 
@@ -176,6 +177,8 @@ bool CryptoThread::unarchiveFiles(QString archiveFilePath,
 			// Get the size and name of the file.
 			qint64 fileSize = entryFields.at(1).toInt();
 			QString filePath = entryFields.at(2);
+			for (int i = 3; i < entryFields.size(); i++)
+				filePath += " " + entryFields.at(i);
 
 			// Create a temporary file.
 			QTemporaryFile temporaryFile;
@@ -260,7 +263,7 @@ bool CryptoThread::archiveFiles(QStringList inputFilePaths,
 		QFile plaintext(inputFilePaths.at(i));
 		if (!plaintext.open(QIODevice::ReadOnly)) {
 			reportError("The computer couldn't read the file\n"
-				+ inputFilePaths.at(i));
+				+ toNativeSeparators(inputFilePaths.at(i)));
 			archiveFile->close();
 			return false;
 		}
@@ -341,7 +344,7 @@ bool CryptoThread::decryptFile(MCRYPT td, QString encryptedFilePath,
 	QFile encryptedFile(encryptedFilePath);
 	if (!encryptedFile.open(QIODevice::ReadOnly)) {
 		reportError("The computer wouldn't let me open\n" +
-			encryptedFilePath);
+			toNativeSeparators(encryptedFilePath));
 		return false;
 	}
 	QDataStream stream(&encryptedFile);
@@ -410,6 +413,12 @@ QByteArray CryptoThread::getFileManifest(QStringList filePaths,
 	}
 
 	return manifest;
+}
+
+QString CryptoThread::toNativeSeparators(QString path)
+{
+	QString pathCopy = path;
+	return pathCopy.replace("/", QDir::separator());
 }
 
 void CryptoThread::setupRun(bool isDecrypt, QStringList inputFiles,

@@ -101,8 +101,6 @@ Rectangle {
 				anchors.top: parent.top
 				anchors.left: parent.left
 				color: "white"
-				style: Text.Raised
-				styleColor: "gray"
 				opacity: 0
 			}
 
@@ -120,8 +118,6 @@ Rectangle {
 				"license. This program was developed using Qt.\n\n" +
 				"Released under the terms of the GPLv3."
 				color: "white"
-				style: Text.Raised
-				styleColor: "gray"
 				wrapMode: Text.WordWrap
 				opacity: 0
 			}
