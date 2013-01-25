@@ -110,9 +110,9 @@ Rectangle {
 				anchors.top: infoTitle.bottom
 				width: master.width - 30
 				text: "\nConceal is a program to encrypt and decrypt files. " +
-				"It's intent is to bring privacy to those would want it, " +
+				"Its intent is to bring privacy to those would want it, " +
 				"but might be intimidated by more comprehensive products.\n\n" +
-				"This software uses 128-bit RIJNDAEL encryption, implemented by the " +
+				"This software uses the 128-bit Rijndael cipher, implemented by the " +
 				"MCRYPT library. The included icons were designed by the Oxygen " +
 				"Project (oxygen-icons.org) and are distributed under an LGPLv3 " +
 				"license. This program was developed using Qt.\n\n" +
