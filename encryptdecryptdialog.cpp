@@ -13,19 +13,19 @@ EncryptDecryptDialog::~EncryptDecryptDialog()
 	delete ui;
 }
 
-void EncryptDecryptDialog::on_decrypt_clicked()
-{
-	this->decrypt = true;
-	this->done(QDialog::Accepted);
-}
-
 void EncryptDecryptDialog::on_encrypt_clicked()
 {
-	this->decrypt = false;
+	this->actionEncrypt = true;
 	this->done(QDialog::Accepted);
 }
 
-bool EncryptDecryptDialog::isDecrypt()
+void EncryptDecryptDialog::on_decrypt_clicked()
 {
-	return this->decrypt;
+	this->actionEncrypt = false;
+	this->done(QDialog::Accepted);
+}
+
+bool EncryptDecryptDialog::isEncrypt()
+{
+	return this->actionEncrypt;
 }

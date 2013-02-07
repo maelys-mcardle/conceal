@@ -17,13 +17,18 @@ SOURCES += main.cpp\
 	passworddialog.cpp \
 	cryptothread.cpp \
     encryptdecryptdialog.cpp \
-    licensedialog.cpp
+    licensedialog.cpp \
+    encrypter.cpp \
+    archiver.cpp
 
 HEADERS  += mainwindow.h \
 	passworddialog.h \
     cryptothread.h \
     encryptdecryptdialog.h \
-    licensedialog.h
+    licensedialog.h \
+    encrypter.h \
+    archiver.h \
+    progresstype.h
 
 FORMS    += mainwindow.ui \
     passworddialog.ui \
@@ -37,7 +42,7 @@ OTHER_FILES += \
     droparea.qml
 
 LIBS += \
-	-lmcrypt
+	-lmcrypt -larchive
 
 win32 {
 	RC_FILE = windowsicon.rc

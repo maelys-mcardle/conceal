@@ -133,12 +133,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 		// Determine if the files are being encrypted or decrypted.
 		bool ok;
-		bool decrypted = this->isDecrypt(pathList, &ok);
+		bool actionEncrypt = this->isEncrypt(pathList, &ok);
 		if (ok == false) return;
 
 		// If it's decryption, as the output directory. Otherwise
 		// ask where to save the encrypted file.
-		QString outputPath = getOutputPath(decrypted);
+		QString outputPath = getOutputPath(actionEncrypt);
 
 		// The user didn't specify anything. Abort.
 		if (outputPath == "") return;
@@ -147,58 +147,58 @@ void MainWindow::dropEvent(QDropEvent *event)
 		this->setAcceptDrops(false);
 
 		// Change the GUI to show the processing mode.
-		if (decrypted) qmlRootObject->setProperty("state", "Decrypt");
-		else qmlRootObject->setProperty("state", "Encrypt");
+		if (actionEncrypt) qmlRootObject->setProperty("state", "Encrypt");
+		else qmlRootObject->setProperty("state", "Decrypt");
 
 		// Setup the crypto thread with the details and execute.
-		this->cryptoThread->setupRun(decrypted, pathList,
+		this->cryptoThread->setupRun(actionEncrypt, pathList,
 			outputPath, encryptionKey);
 		this->cryptoThread->start();
 	}
 }
 
-QString MainWindow::getOutputPath(bool decrypt)
+QString MainWindow::getOutputPath(bool actionEncrypt)
 {
 	// Ask the user for a path.
-	QString path = (decrypt) ?
-		QFileDialog::getExistingDirectory(this,
-			"Select where to place the decrypted files", ""):
+	QString path = (actionEncrypt) ?
 		QFileDialog::getSaveFileName(this,
 			"Choose where your encrypted file will go",
-			"", "Encrypted Files (*." + this->fileExtension + ")");
+			"", "Encrypted Files (*." + this->fileExtension + ")"):
+		QFileDialog::getExistingDirectory(this,
+			"Select where to place the decrypted files", "");
 
 	// If it's empty, abort.
 	if (path.isEmpty()) return path;
 
 	// If it was a file, and it already exists after adding a missing
 	// file extension, warn the user.
-	if (!decrypt && !path.endsWith(this->fileExtension)) {
+	if (actionEncrypt && !path.endsWith(this->fileExtension)) {
 		path.append("." + this->fileExtension);
 		if (QFileInfo(path).exists() &&
 			QMessageBox::question(this, "Overwrite file?",
 			"The file " + QFileInfo(path).fileName() + " already exists.\n"
 			"Do you want to overwrite it?", QMessageBox::Yes |
 			QMessageBox::No) == QMessageBox::No) {
-			path = this->getOutputPath(decrypt);
+			path = this->getOutputPath(actionEncrypt);
 		}
 	}
 
 	// If it's a directory, and not empty, warn the user.
-	if (decrypt && QDir(path).entryList(QDir::NoDotAndDotDot |
+	if (!actionEncrypt && QDir(path).entryList(QDir::NoDotAndDotDot |
 		QDir::AllEntries).size() > 0) {
 		if (QMessageBox::question(this, "The directory has stuff in it",
 			"The directory you selected isn't empty. This means\n"
 			"that some stuff inside could get over-written. Do you\n"
 			"want to pick a different directory?", QMessageBox::Yes |
 			QMessageBox::No) == QMessageBox::Yes) {
-			path = this->getOutputPath(decrypt);
+			path = this->getOutputPath(actionEncrypt);
 		}
 	}
 
 	return path;
 }
 
-bool MainWindow::isDecrypt(QStringList files, bool *ok)
+bool MainWindow::isEncrypt(QStringList files, bool *ok)
 {
 	// Assume all checks out by default.
 	*ok = true;
@@ -211,19 +211,19 @@ bool MainWindow::isDecrypt(QStringList files, bool *ok)
 	}
 
 	// If it's a single encrypted file, assume decryption.
-	if (encrypted == 1 && decrypted == 0) return true;
+	if (encrypted == 1 && decrypted == 0) return false;
 
 	// If it's all decrypted, assume encryption.
-	if (encrypted == 0 && decrypted > 0) return false;
+	if (encrypted == 0 && decrypted > 0) return true;
 
 	// If it's anything else, ask the user. Abort on cancel.
 	if (this->encryptDecryptDialog->exec() == QDialog::Rejected) {
 		*ok = false;
-		return false;
+		return true;
 	}
 
 	// Return what the user specified.
-	return this->encryptDecryptDialog->isDecrypt();
+	return this->encryptDecryptDialog->isEncrypt();
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)

@@ -2,26 +2,16 @@
 #define CRYPTOTHREAD_H
 
 #include <QtGui>
-extern "C" {
-	#include <mcrypt.h>
-}
-
-typedef enum {
-	PLAINTEXT_TO_ARCHIVE,
-	ARCHIVE_TO_CIPHERTEXT,
-	CIPHERTEXT_TO_ARCHIVE,
-	ARCHIVE_TO_PLAINTEXT,
-	ENCRYPTION_MOVING_FILE,
-	DECRYPTION_MOVING_FILE
-} ProgressType;
-
-
+#include "archiver.h"
+#include "encrypter.h"
+#include "progresstype.h"
 
 class CryptoThread : public QThread
 {
 	Q_OBJECT
 public:
 	explicit CryptoThread(QObject *parent = 0);
+	~CryptoThread();
 	void setupRun(bool, QStringList, QString, QByteArray);
 	void run();
 
@@ -33,20 +23,15 @@ signals:
 public slots:
 	
 private:
-	void decryptFiles(MCRYPT);
-	void encryptFiles(MCRYPT);
-	bool archiveFiles(QStringList, QString, QTemporaryFile *);
-	bool unarchiveFiles(QString, QTemporaryFile *, QString);
-	bool encryptFile(MCRYPT, QTemporaryFile *, QTemporaryFile *);
-	bool decryptFile(MCRYPT, QString, QTemporaryFile *);
+	Encrypter *encrypter;
+	Archiver *archiver;
+	void decryptFiles();
+	void encryptFiles();
 	bool renameTempFile(QTemporaryFile *, QString);
 	QString toNativeSeparators(QString);
 	QStringList getAllSubdirectories(QStringList);
 	QString getRootPath(QStringList);
-	QByteArray getFileManifest(QStringList, QString);
-	bool decrypt;
-	int encryptionBlockSize;
-	qint64 copyChunkSize;
+	bool actionEncrypt;
 	QStringList pathIn;
 	QString rootPathIn;
 	QString pathOut;

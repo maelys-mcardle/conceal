@@ -23,7 +23,7 @@ public:
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dragMoveEvent(QDragMoveEvent* event);
 	void dragLeaveEvent(QDragLeaveEvent* event);
-	bool isDecrypt(QStringList, bool *);
+	bool isEncrypt(QStringList, bool *);
 	Q_INVOKABLE void cancelCrypto();
 	Q_INVOKABLE void showLicense();
 	QString getOutputPath(bool);

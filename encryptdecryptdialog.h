@@ -14,7 +14,7 @@ class EncryptDecryptDialog : public QDialog
 public:
 	explicit EncryptDecryptDialog(QWidget *parent = 0);
 	~EncryptDecryptDialog();
-	bool isDecrypt();
+	bool isEncrypt();
 
 private slots:
 	void on_decrypt_clicked();
@@ -22,7 +22,7 @@ private slots:
 
 private:
 	Ui::EncryptDecryptDialog *ui;
-	bool decrypt;
+	bool actionEncrypt;
 };
 
 #endif // ENCRYPTDECRYPTDIALOG_H
