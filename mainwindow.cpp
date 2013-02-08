@@ -21,8 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		SLOT(cryptoThreadDone()));
 	connect(this->cryptoThread, SIGNAL(reportError(QString)), this,
 		SLOT(cryptoError(QString)));
-	connect(this->cryptoThread, SIGNAL(reportComplete(QString)), this,
-		SLOT(cryptoComplete(QString)));
+	connect(this->cryptoThread, SIGNAL(reportComplete(QString, QString)),
+		this, SLOT(cryptoComplete(QString, QString)));
 	connect(this->cryptoThread, SIGNAL(updateProgress(ProgressType,float)),
 		this, SLOT(cryptoStatusUpdate(ProgressType,float)));
 
@@ -60,10 +60,9 @@ void MainWindow::cancelCrypto()
 		this->cryptoThread->terminate();
 }
 
-void MainWindow::cryptoComplete(QString message)
+void MainWindow::cryptoComplete(QString title, QString message)
 {
-	QMessageBox::information(this, "I'm finished",
-		message, QMessageBox::Ok);
+	QMessageBox::information(this, title, message, QMessageBox::Ok);
 }
 
 void MainWindow::cryptoError(QString message)

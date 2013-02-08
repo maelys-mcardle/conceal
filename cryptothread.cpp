@@ -6,6 +6,16 @@ CryptoThread::CryptoThread(QObject *parent) :
 	// Generate encrypter, archiver.
 	this->encrypter = new Encrypter(this);
 	this->archiver = new Archiver(this);
+
+	// Connect signals/slots.
+	connect(this->encrypter, SIGNAL(reportError(QString)),
+		this, SLOT(spreadError(QString)));
+	connect(this->encrypter, SIGNAL(updateProgress(ProgressType,float)),
+		this, SLOT(spreadUpdate(ProgressType,float)));
+	connect(this->archiver, SIGNAL(reportError(QString)),
+		this, SLOT(spreadError(QString)));
+	connect(this->archiver, SIGNAL(updateProgress(ProgressType,float)),
+		this, SLOT(spreadUpdate(ProgressType,float)));
 }
 
 CryptoThread::~CryptoThread()
@@ -13,6 +23,16 @@ CryptoThread::~CryptoThread()
 	// Destroy the encrypter, archiver.
 	delete this->encrypter;
 	delete this->archiver;
+}
+
+void CryptoThread::spreadError(QString message)
+{
+	reportError(message);
+}
+
+void CryptoThread::spreadUpdate(ProgressType type, float progress)
+{
+	updateProgress(type, progress);
 }
 
 void CryptoThread::run()
@@ -25,12 +45,12 @@ void CryptoThread::run()
 	if (encrypterStatus != ER_OK) {
 		reportError("A part of the software that's needed to make\n"
 			"the encryption happen broke.");
+		return;
+	}
 
 	// Apply encryption or decryption.
-	} else {
-		if (this->actionEncrypt) this->encryptFiles();
-		else this->decryptFiles();
-	}
+	if (this->actionEncrypt) this->encryptFiles();
+	else this->decryptFiles();
 }
 
 void CryptoThread::decryptFiles()
@@ -44,63 +64,73 @@ void CryptoThread::decryptFiles()
 		// Skip directories.
 		if (QFileInfo(encryptedFilePath).isDir()) continue;
 
-		// Open the encrypted file.
-		QFile encryptedFile(encryptedFilePath);
-		if (!encryptedFile.open(QIODevice::ReadOnly)) {
-			reportError("The computer wouldn't let me open\n" +
-				toNativeSeparators(encryptedFilePath));
-			continue;
-		}
-
-		// Generate a file to store the decrypted data pre-extraction.
-		QTemporaryFile temporaryFile;
-		if (!temporaryFile.open()) {
-			reportError("The computer wouldn't let me create a\n"
-				"temporary file, which is needed for this to work.");
-			return;
-		}
-
-		// Decrypt files.
-		EncrypterReturn decryptStatus = this->encrypter->decryptFile(
-			&encryptedFile, &temporaryFile);
-
-		// Report issues.
-		if (decryptStatus == ER_PASSWORD_WRONG) {
-			reportError("The password was wrong for the file\n"
-				+ toNativeSeparators(encryptedFilePath));
-		}
-
-		// All was OK. Unpack the file.
-		if (decryptStatus == ER_OK) {
-
-			ArchiverReturn archiveStatus = this->archiver->
-				extractFiles(encryptedFilePath, &temporaryFile,
-				this->pathOut);
-
-
-			if (archiveStatus == AR_OK) successes++;
-			else failures++;
-
-		}
-
-		// Close out the files.
-		encryptedFile.close();
-		temporaryFile.close();
+		// Decrypt the individual files.
+		if (this->decryptFile(encryptedFilePath)) successes++;
+		else failures++;
 	}
 
 	// Inform of situation.
-	if (failures == 0) {
-		reportComplete("All done. Your files are found here:\n" +
+	if (failures == 0)
+		reportComplete("Decryption Complete",
+			"All done. Your files are found here:\n" +
 			toNativeSeparators(this->pathOut));
-	} else if (successes > 0 && failures > 0) {
-		reportComplete("Done, but there were problems reading\n"
+	else if (successes > 0 && failures > 0)
+		reportComplete("Decryption Complete",
+			"Done, but there were problems reading\n"
 			"some of the files.");
+
+}
+
+bool CryptoThread::decryptFile(QString encryptedFilePath)
+{
+	// Open the encrypted file.
+	QFile encryptedFile(encryptedFilePath);
+	if (!encryptedFile.open(QIODevice::ReadOnly)) {
+		reportError("The computer wouldn't let me open\n" +
+			toNativeSeparators(encryptedFilePath));
+		return false;
 	}
+
+	// Generate a file to store the decrypted data pre-extraction.
+	QTemporaryFile temporaryFile;
+	if (!temporaryFile.open()) {
+		reportError("The computer wouldn't let me create a\n"
+			"temporary file, which is needed for this to work.");
+		return false;
+	}
+
+	// Decrypt the file.
+	EncrypterReturn decryptStatus = this->encrypter->
+		decryptFile(&encryptedFile, &temporaryFile);
+
+	// Report issues.
+	if (decryptStatus == ER_PASSWORD_WRONG) {
+		reportError("The password was wrong for the file\n"
+			+ toNativeSeparators(encryptedFilePath));
+	}
+
+	// Reset positions.
+	encryptedFile.seek(0);
+	temporaryFile.seek(0);
+
+	// Unpack the file.
+	ArchiverReturn archiveStatus = AR_ARCHIVE_ERROR;
+	if (decryptStatus == ER_OK && temporaryFile.open()) {
+		archiveStatus = this->archiver->
+			extractFile(&temporaryFile, this->pathOut);
+	}
+
+	// Close out the files.
+	encryptedFile.close();
+	temporaryFile.close();
+
+	// Indicate success/failure.
+	return (decryptStatus == ER_OK && archiveStatus == AR_OK);
 }
 
 void CryptoThread::encryptFiles()
 {
-	// Create temporary files.
+	// Create & open temporary files.
 	QTemporaryFile archiveFile, encryptedFile;
 	if (!archiveFile.open() || !encryptedFile.open()) {
 		reportError("The computer wouldn't let me create a\n"
@@ -110,21 +140,25 @@ void CryptoThread::encryptFiles()
 
 	// Archive the file to a temporary location.
 	ArchiverReturn archiveStatus = this->archiver->
-		compressFiles(this->pathIn, this->rootPathIn, &archiveFile);
+		archiveFiles(this->pathIn, this->rootPathIn, &archiveFile);
+
+	// Reset positions.
+	archiveFile.seek(0);
 
 	// If the archiving was OK, encrypt the contents.
 	if (archiveStatus == AR_OK) {
 
 		// Encrypt the contents.
-		EncrypterReturn encryptStatus = this->encrypter->encryptFile(
-			&archiveFile, &encryptedFile);
+		EncrypterReturn encryptStatus = this->encrypter->
+			encryptFile(&archiveFile, &encryptedFile);
 
 		// If the encryption was OK, make the file permanent.
 		if (encryptStatus == ER_OK) {
 			updateProgress(ENCRYPTION_MOVING_FILE, 1);
 			if (this->renameTempFile(&encryptedFile, this->pathOut)) {
-				reportComplete("All done. Your secure file is found "
-					"here:\n" + toNativeSeparators(this->pathOut));
+				reportComplete("Encryption Complete",
+					"All done. Your encrypted file is found here:\n"
+					+ toNativeSeparators(this->pathOut));
 			}
 		}
 	}
@@ -218,6 +252,6 @@ QString CryptoThread::getRootPath(QStringList inputPaths)
 	} while (rootDirectory.cdUp());
 
 	// Split the first path by directories.
-	return rootDirectory.absolutePath();
+	return rootDirectory.absolutePath() + "/";
 }
 

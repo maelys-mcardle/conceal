@@ -42,7 +42,7 @@ OTHER_FILES += \
     droparea.qml
 
 LIBS += \
-	-lmcrypt -larchive
+	-lmcrypt
 
 win32 {
 	RC_FILE = windowsicon.rc

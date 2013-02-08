@@ -43,13 +43,9 @@ Encrypter::~Encrypter()
 }
 
 
-EncrypterReturn Encrypter::encryptFile(QFile *plaintext, QFile *ciphertext)
+EncrypterReturn Encrypter::encryptFile(QTemporaryFile *plaintext,
+	QTemporaryFile *ciphertext)
 {
-	// Abort on initialization failure.
-	if (this->initializationStatus == ER_MCRYPT_OPEN_ERROR ||
-		this->initializationStatus == ER_MCRYPT_INIT_ERROR)
-		return this->initializationStatus;
-
 	// The IV will not be communicated, so prepend a sacrificial block.
 	QByteArray firstBlock = generateRandomBlock();
 	mcrypt_generic (this->td, firstBlock.data(), firstBlock.size());
@@ -61,7 +57,6 @@ EncrypterReturn Encrypter::encryptFile(QFile *plaintext, QFile *ciphertext)
 	ciphertext->write(challenge.data(), challenge.size());
 
 	// Encrypt the file.
-	plaintext->seek(0);
 	qint64 lastProgressUpdate = 0;
 	while (!plaintext->atEnd()) {
 
@@ -126,13 +121,9 @@ bool Encrypter::validateChallenge(QByteArray data)
 	return true;
 }
 
-EncrypterReturn Encrypter::decryptFile(QFile *ciphertext, QFile *plaintext)
+EncrypterReturn Encrypter::decryptFile(QFile *ciphertext,
+	QTemporaryFile *plaintext)
 {
-	// Abort on initialization failure.
-	if (this->initializationStatus == ER_MCRYPT_OPEN_ERROR ||
-		this->initializationStatus == ER_MCRYPT_INIT_ERROR)
-		return this->initializationStatus;
-
 	// Go to the start of the file.
 	QDataStream stream(ciphertext);
 	ciphertext->seek(0);

@@ -18,14 +18,17 @@ public:
 signals:
 	void updateProgress(ProgressType, float);
 	void reportError(QString);
-	void reportComplete(QString);
+	void reportComplete(QString, QString);
 
 public slots:
+	void spreadError(QString);
+	void spreadUpdate(ProgressType, float);
 	
 private:
 	Encrypter *encrypter;
 	Archiver *archiver;
 	void decryptFiles();
+	bool decryptFile(QString);
 	void encryptFiles();
 	bool renameTempFile(QTemporaryFile *, QString);
 	QString toNativeSeparators(QString);

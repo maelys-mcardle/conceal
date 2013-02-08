@@ -3,16 +3,12 @@
 
 #include <QtGui>
 #include "progresstype.h"
-extern "C" {
-	#include <archive.h>
-	#include <archive_entry.h>
-	#include <fcntl.h>
-}
 
 typedef enum {
 	AR_OK,
 	AR_ARCHIVE_ERROR,
-	AR_FILE_UNREADABLE
+	AR_FILE_UNREADABLE,
+	AR_FILE_UNWRITEABLE
 } ArchiverReturn;
 
 class Archiver : public QObject
@@ -20,18 +16,18 @@ class Archiver : public QObject
 	Q_OBJECT
 public:
 	explicit Archiver(QObject *parent = 0);
-	ArchiverReturn compressFiles(QStringList, QString, QTemporaryFile *);
-	ArchiverReturn extractFiles(QString, QTemporaryFile *, QString);
+	ArchiverReturn archiveFiles(QStringList, QString, QTemporaryFile *);
+	ArchiverReturn extractFile(QTemporaryFile *, QString);
 
 signals:
 	void updateProgress(ProgressType, float);
 	void reportError(QString);
-	void reportComplete(QString);
 
 public slots:
 	
 private:
-	int copyArchiveData(struct archive *, struct archive *);
+	ArchiverReturn runExtraction(QTemporaryFile *);
+	ArchiverReturn runArchive(QStringList, QString, QTemporaryFile *);
 	void updateProgressMany(ProgressType, qint64, qint64, int, int);
 	qint64 copyChunkSize;
 };

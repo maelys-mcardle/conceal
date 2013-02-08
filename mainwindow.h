@@ -31,7 +31,7 @@ public:
 private slots:
 	void cryptoThreadDone();
 	void cryptoError(QString);
-	void cryptoComplete(QString);
+	void cryptoComplete(QString, QString);
 	void cryptoStatusUpdate(ProgressType, float);
 
 private:

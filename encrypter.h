@@ -21,11 +21,12 @@ public:
 	explicit Encrypter(QObject *parent = 0);
 	~Encrypter();
 	EncrypterReturn setKey(QByteArray);
-	EncrypterReturn encryptFile(QFile *, QFile *);
-	EncrypterReturn decryptFile(QFile *, QFile *);
+	EncrypterReturn encryptFile(QTemporaryFile *, QTemporaryFile *);
+	EncrypterReturn decryptFile(QFile *, QTemporaryFile *);
 
 signals:
 	void updateProgress(ProgressType, float);
+	void reportError(QString);
 	
 public slots:
 
@@ -33,7 +34,6 @@ private:
 	MCRYPT td;
 	QByteArray generateChallenge();
 	QByteArray generateRandomBlock();
-	EncrypterReturn initializationStatus;
 	bool validateChallenge(QByteArray);
 	int progressUpdateInterval;
 	int encryptionBlockSize;
