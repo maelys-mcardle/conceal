@@ -11,35 +11,8 @@ ArchiverReturn Archiver::extractFile(QTemporaryFile *archiveFile,
 	QString outputDir)
 {
 	// Jump to the directory where the files are to be dumped.
-	QString oldDirectory = QDir::currentPath();
 	QDir::setCurrent(outputDir);
 
-	// Run extraction.
-	ArchiverReturn archiveReturn = runExtraction(archiveFile);
-
-	// Return to the previous directory.
-	QDir::setCurrent(oldDirectory);
-	return archiveReturn;
-}
-
-ArchiverReturn Archiver::archiveFiles(QStringList inputFilePaths,
-	QString pathRoot, QTemporaryFile *archiveFile)
-{
-	// Jump to the directory where the files are to be taken from.
-	QString oldDirectory = QDir::currentPath();
-	QDir::setCurrent(pathRoot);
-
-	// Run archive.
-	ArchiverReturn archiveReturn =
-		runArchive(inputFilePaths, pathRoot, archiveFile);
-
-	// Return to the previous directory.
-	QDir::setCurrent(oldDirectory);
-	return archiveReturn;
-}
-
-ArchiverReturn Archiver::runExtraction(QTemporaryFile *archiveFile)
-{
 	// Retrieve the manifest.
 	QStringList fileList, dirList;
 	QList <qint64> fileSizes;
@@ -81,9 +54,13 @@ ArchiverReturn Archiver::runExtraction(QTemporaryFile *archiveFile)
 	return AR_OK;
 }
 
-ArchiverReturn Archiver::runArchive(QStringList inputFilePaths,
+ArchiverReturn Archiver::archiveFiles(QStringList inputFilePaths,
 	QString pathRoot, QTemporaryFile *archiveFile)
 {
+	// Jump to the directory where the files are to be taken from.
+	QDir::setCurrent(pathRoot);
+
+
 	// Generate a manifest that gives the files, directories, and sizes.
 	QStringList fileList, dirList;
 	QList <qint64> fileSizes;
@@ -119,6 +96,7 @@ ArchiverReturn Archiver::runArchive(QStringList inputFilePaths,
 		// Close the input file.
 		inputFile.close();
 	}
+
 	return AR_OK;
 }
 

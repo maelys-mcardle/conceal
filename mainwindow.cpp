@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	this->fileExtension = "secure";
+	this->fileExtension = "sec";
 	this->cryptoThread = new CryptoThread(this);
 	this->passwordDialog = new PasswordDialog(this);
 	this->encryptDecryptDialog = new EncryptDecryptDialog(this);

@@ -26,8 +26,6 @@ signals:
 public slots:
 	
 private:
-	ArchiverReturn runExtraction(QTemporaryFile *);
-	ArchiverReturn runArchive(QStringList, QString, QTemporaryFile *);
 	void updateProgressMany(ProgressType, qint64, qint64, int, int);
 	qint64 copyChunkSize;
 };
