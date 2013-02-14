@@ -36,13 +36,6 @@ EncrypterReturn Encrypter::setKey(QByteArray cryptoKey)
 	return ER_OK;
 }
 
-Encrypter::~Encrypter()
-{
-	// Finish up.
-	mcrypt_generic_end(this->td);
-}
-
-
 EncrypterReturn Encrypter::encryptFile(QTemporaryFile *plaintext,
 	QTemporaryFile *ciphertext)
 {

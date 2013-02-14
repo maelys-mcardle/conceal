@@ -18,13 +18,6 @@ CryptoThread::CryptoThread(QObject *parent) :
 		this, SLOT(spreadUpdate(ProgressType,float)));
 }
 
-CryptoThread::~CryptoThread()
-{
-	// Destroy the encrypter, archiver.
-	delete this->encrypter;
-	delete this->archiver;
-}
-
 void CryptoThread::spreadError(QString message)
 {
 	reportError(message);

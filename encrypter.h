@@ -19,7 +19,6 @@ class Encrypter : public QObject
 	Q_OBJECT
 public:
 	explicit Encrypter(QObject *parent = 0);
-	~Encrypter();
 	EncrypterReturn setKey(QByteArray);
 	EncrypterReturn encryptFile(QTemporaryFile *, QTemporaryFile *);
 	EncrypterReturn decryptFile(QFile *, QTemporaryFile *);

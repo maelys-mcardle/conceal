@@ -11,7 +11,6 @@ class CryptoThread : public QThread
 	Q_OBJECT
 public:
 	explicit CryptoThread(QObject *parent = 0);
-	~CryptoThread();
 	void setupRun(bool, QStringList, QString, QByteArray);
 	void run();
 
