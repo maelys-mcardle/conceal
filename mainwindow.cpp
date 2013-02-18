@@ -137,7 +137,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 		// If it's decryption, as the output directory. Otherwise
 		// ask where to save the encrypted file.
-		QString outputPath = getOutputPath(actionEncrypt);
+		QString outputPath = getOutputPath(actionEncrypt, pathList);
 
 		// The user didn't specify anything. Abort.
 		if (outputPath == "") return;
@@ -156,13 +156,19 @@ void MainWindow::dropEvent(QDropEvent *event)
 	}
 }
 
-QString MainWindow::getOutputPath(bool actionEncrypt)
+QString MainWindow::getOutputPath(bool actionEncrypt,
+	QStringList inputPaths)
 {
+	// Get the default path for the encrypted file, if applicable.
+	QString defaultOutputPath = (inputPaths.size() > 0) ?
+		inputPaths.at(0) : "encrypted";
+
 	// Ask the user for a path.
 	QString path = (actionEncrypt) ?
 		QFileDialog::getSaveFileName(this,
 			"Choose where your encrypted file will go",
-			"", "Encrypted Files (*." + this->fileExtension + ")"):
+			defaultOutputPath + "." + this->fileExtension,
+			"Encrypted Files (*." + this->fileExtension + ")"):
 		QFileDialog::getExistingDirectory(this,
 			"Select where to place the decrypted files", "");
 
@@ -178,7 +184,7 @@ QString MainWindow::getOutputPath(bool actionEncrypt)
 			"The file " + QFileInfo(path).fileName() + " already exists.\n"
 			"Do you want to overwrite it?", QMessageBox::Yes |
 			QMessageBox::No) == QMessageBox::No) {
-			path = this->getOutputPath(actionEncrypt);
+			path = this->getOutputPath(actionEncrypt, inputPaths);
 		}
 	}
 
@@ -190,7 +196,7 @@ QString MainWindow::getOutputPath(bool actionEncrypt)
 			"that some stuff inside could get over-written. Do you\n"
 			"want to pick a different directory?", QMessageBox::Yes |
 			QMessageBox::No) == QMessageBox::Yes) {
-			path = this->getOutputPath(actionEncrypt);
+			path = this->getOutputPath(actionEncrypt, inputPaths);
 		}
 	}
 

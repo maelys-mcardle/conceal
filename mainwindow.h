@@ -26,7 +26,7 @@ public:
 	bool isEncrypt(QStringList, bool *);
 	Q_INVOKABLE void cancelCrypto();
 	Q_INVOKABLE void showLicense();
-	QString getOutputPath(bool);
+	QString getOutputPath(bool, QStringList);
 
 private slots:
 	void cryptoThreadDone();
