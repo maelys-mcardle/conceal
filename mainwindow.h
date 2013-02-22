@@ -19,16 +19,19 @@ class MainWindow : public QMainWindow
 public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
+	void showEvent(QShowEvent *);
 	void dropEvent(QDropEvent *);
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dragMoveEvent(QDragMoveEvent* event);
 	void dragLeaveEvent(QDragLeaveEvent* event);
 	bool isEncrypt(QStringList, bool *);
+	void runCrypto(QStringList);
 	Q_INVOKABLE void cancelCrypto();
 	Q_INVOKABLE void showLicense();
 	QString getOutputPath(bool, QStringList);
 
 private slots:
+	void parseCommandLine();
 	void cryptoThreadDone();
 	void cryptoError(QString);
 	void cryptoComplete(QString, QString);

@@ -40,6 +40,11 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
+void MainWindow::showEvent(QShowEvent *)
+{
+	parseCommandLine();
+}
+
 void MainWindow::cryptoThreadDone()
 {
 	// Re-enable the drops.
@@ -114,9 +119,8 @@ void MainWindow::showLicense()
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-	const QMimeData* mimeData = event->mimeData();
-
 	// check for our needed mime type, here a file or a list of files
+	const QMimeData* mimeData = event->mimeData();
 	if (mimeData->hasUrls())
 	{
 		QStringList pathList;
@@ -126,34 +130,56 @@ void MainWindow::dropEvent(QDropEvent *event)
 		for (int i = 0; i < urlList.size() && i < 32; ++i)
 			pathList.append(urlList.at(i).toLocalFile());
 
-		// Ask the user to enter a password, abort on cancel.
-		if (this->passwordDialog->exec() == QDialog::Rejected) return;
-		QByteArray encryptionKey = this->passwordDialog->getHash();
-
-		// Determine if the files are being encrypted or decrypted.
-		bool ok;
-		bool actionEncrypt = this->isEncrypt(pathList, &ok);
-		if (ok == false) return;
-
-		// If it's decryption, as the output directory. Otherwise
-		// ask where to save the encrypted file.
-		QString outputPath = getOutputPath(actionEncrypt, pathList);
-
-		// The user didn't specify anything. Abort.
-		if (outputPath == "") return;
-
-		// We're going to execute this. Prevent more drops.
-		this->setAcceptDrops(false);
-
-		// Change the GUI to show the processing mode.
-		if (actionEncrypt) qmlRootObject->setProperty("state", "Encrypt");
-		else qmlRootObject->setProperty("state", "Decrypt");
-
-		// Setup the crypto thread with the details and execute.
-		this->cryptoThread->setupRun(actionEncrypt, pathList,
-			outputPath, encryptionKey);
-		this->cryptoThread->start();
+		// Run the encryption/decryption.
+		runCrypto(pathList);
 	}
+}
+
+void MainWindow::parseCommandLine()
+{
+	QStringList pathList;
+
+	// Go through the files listed in the command-line.
+	// Load in the absolute path of each.
+	for (int i = 1; i < QApplication::arguments().size(); i++)
+		pathList.append(QFileInfo(QApplication::arguments()
+			.at(i)).absoluteFilePath());
+
+	// Run the encryption/decryption.
+	runCrypto(pathList);
+}
+
+void MainWindow::runCrypto(QStringList inputPaths)
+{
+	// No input paths, abort.
+	if (inputPaths.isEmpty()) return;
+
+	// Determine if the files are being encrypted or decrypted.
+	bool ok, actionEncrypt = this->isEncrypt(inputPaths, &ok);
+	if (ok == false) return;
+
+	// If it's decryption, as the output directory. Otherwise
+	// ask where to save the encrypted file.
+	QString outputPath = getOutputPath(actionEncrypt, inputPaths);
+
+	// The user didn't specify anything. Abort.
+	if (outputPath == "") return;
+
+	// Ask the user to enter a password, abort on cancel.
+	if (this->passwordDialog->exec() == QDialog::Rejected) return;
+	QByteArray encryptionKey = this->passwordDialog->getHash();
+
+	// Prevent further drops.
+	this->setAcceptDrops(false);
+
+	// Change the GUI to show the processing mode.
+	if (actionEncrypt) qmlRootObject->setProperty("state", "Encrypt");
+	else qmlRootObject->setProperty("state", "Decrypt");
+
+	// Setup the crypto thread with the details and execute.
+	this->cryptoThread->setupRun(actionEncrypt, inputPaths,
+		outputPath, encryptionKey);
+	this->cryptoThread->start();
 }
 
 QString MainWindow::getOutputPath(bool actionEncrypt,

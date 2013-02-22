@@ -154,6 +154,8 @@ void CryptoThread::encryptFiles()
 					+ toNativeSeparators(this->pathOut));
 			}
 		}
+
+	// If the archiving was not OK, inform the user.
 	}
 
 	// Close temporary files.

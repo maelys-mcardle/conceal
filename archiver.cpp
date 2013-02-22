@@ -29,8 +29,11 @@ ArchiverReturn Archiver::extractFile(QTemporaryFile *archiveFile,
 
 		// Open the file.
 		QFile outputFile(fileList.at(i));
-		if (!outputFile.open(QIODevice::WriteOnly))
+		if (!outputFile.open(QIODevice::WriteOnly)) {
+			reportError("The program couldn't load in the file\n"
+				"called \"" + fileList.at(i) + "\".");
 			return AR_FILE_UNWRITEABLE;
+		}
 
 		// Copy the data.
 		for (qint64 leftToRead = fileSizes.at(i); leftToRead > 0;
@@ -60,7 +63,6 @@ ArchiverReturn Archiver::archiveFiles(QStringList inputFilePaths,
 	// Jump to the directory where the files are to be taken from.
 	QDir::setCurrent(pathRoot);
 
-
 	// Generate a manifest that gives the files, directories, and sizes.
 	QStringList fileList, dirList;
 	QList <qint64> fileSizes;
@@ -82,8 +84,11 @@ ArchiverReturn Archiver::archiveFiles(QStringList inputFilePaths,
 
 		// Open the input file.
 		QFile inputFile(fileList.at(i));
-		if (!inputFile.open(QIODevice::ReadOnly))
+		if (!inputFile.open(QIODevice::ReadOnly)) {
+			reportError("The program couldn't create the file\n"
+				"called \"" + fileList.at(i) + "\".");
 			return AR_FILE_UNREADABLE;
+		}
 
 		// Copy the data.
 		while (!inputFile.atEnd()) {
