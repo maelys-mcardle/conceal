@@ -45,6 +45,7 @@ void PasswordDialog::on_ok_clicked()
 	// Password is OK. Store its hash.
 	} else {
 		QCryptographicHash hash(QCryptographicHash::Md5);
+		for (int i = 0; i < 256; i++) hash.addData(QByteArray(1, i));
 		hash.addData(ui->password->text().toLocal8Bit());
 		this->hash = hash.result();
 		this->resetFields();
