@@ -1,0 +1,23 @@
+::::::::::::::::::::::::::::::: CONCEAL ::::::::::::::::::::::::::::::::
+
+Description
+-----------
+ Conceal provides a drag and drop interface to encrypt and decrypt
+ files. It uses the Rijndael-128 cipher to encode the data, with the
+ salted MD5 hash of the password acting as its key.
+
+Copyright
+---------
+ Conceal's source code is released under the terms of the GPLv3. The 
+ graphical assets used by the program are property of Oxygen Icons 
+ (http://www.oxygen-icons.org/) and distributed under the terms of the
+ LGPL.
+
+Author
+------
+ Julien McArdle <airseal@hotmail.com>
+
+Websites
+-------- 
+ Project: https://bitbucket.org/jmcardle/conceal
+ Author: http://www.jmcardle.com/
