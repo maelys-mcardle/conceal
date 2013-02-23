@@ -37,7 +37,7 @@ private:
 	QStringList pathIn;
 	QString rootPathIn;
 	QString pathOut;
-	QByteArray key;
+	QByteArray password;
 };
 
 #endif // CRYPTOTHREAD_H

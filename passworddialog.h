@@ -2,7 +2,6 @@
 #define PASSWORDDIALOG_H
 
 #include <QtGui>
-#include <QCryptographicHash>
 
 namespace Ui {
 class PasswordDialog;
@@ -15,7 +14,7 @@ class PasswordDialog : public QDialog
 public:
 	explicit PasswordDialog(QWidget *parent = 0);
 	~PasswordDialog();
-	QByteArray getHash();
+	QByteArray getPassword();
 	void resetFields();
 
 private slots:
@@ -24,8 +23,7 @@ private slots:
 
 private:
 	Ui::PasswordDialog *ui;
-	QByteArray hash;
-
+	QByteArray password;
 };
 
 #endif // PASSWORDDIALOG_H

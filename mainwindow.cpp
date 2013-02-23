@@ -167,7 +167,7 @@ void MainWindow::runCrypto(QStringList inputPaths)
 
 	// Ask the user to enter a password, abort on cancel.
 	if (this->passwordDialog->exec() == QDialog::Rejected) return;
-	QByteArray encryptionKey = this->passwordDialog->getHash();
+	QByteArray password = this->passwordDialog->getPassword();
 
 	// Prevent further drops.
 	this->setAcceptDrops(false);
@@ -178,7 +178,7 @@ void MainWindow::runCrypto(QStringList inputPaths)
 
 	// Setup the crypto thread with the details and execute.
 	this->cryptoThread->setupRun(actionEncrypt, inputPaths,
-		outputPath, encryptionKey);
+		outputPath, password);
 	this->cryptoThread->start();
 }
 

@@ -2,6 +2,7 @@
 #define ENCRYPTER_H
 
 #include <QtGui>
+#include <QCryptographicHash>
 #include "progresstype.h"
 extern "C" {
 	#include <mcrypt.h>
@@ -20,8 +21,8 @@ class Encrypter : public QObject
 public:
 	explicit Encrypter(QObject *parent = 0);
 	EncrypterReturn setKey(QByteArray);
-	EncrypterReturn encryptFile(QTemporaryFile *, QTemporaryFile *);
-	EncrypterReturn decryptFile(QFile *, QTemporaryFile *);
+	EncrypterReturn encryptFile(QByteArray, QTemporaryFile *, QTemporaryFile *);
+	EncrypterReturn decryptFile(QByteArray, QFile *, QTemporaryFile *);
 
 signals:
 	void updateProgress(ProgressType, float);
@@ -31,11 +32,13 @@ public slots:
 
 private:
 	MCRYPT td;
+	QByteArray generateHash(QByteArray, QByteArray);
 	QByteArray generateChallenge();
-	QByteArray generateRandomBlock();
+	QByteArray generateRandomData(int);
 	bool validateChallenge(QByteArray);
 	int progressUpdateInterval;
 	int encryptionBlockSize;
+	int encryptionSaltSize;
 };
 
 #endif // ENCRYPTER_H

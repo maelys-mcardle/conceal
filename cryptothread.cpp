@@ -33,14 +33,6 @@ void CryptoThread::run()
 	// Missing parameters, abort.
 	if (this->pathIn.size() == 0) return;
 
-	// Set the key with the encrypter.
-	EncrypterReturn encrypterStatus = this->encrypter->setKey(this->key);
-	if (encrypterStatus != ER_OK) {
-		reportError("A part of the software that's needed to make\n"
-			"the encryption happen broke.");
-		return;
-	}
-
 	// Apply encryption or decryption.
 	if (this->actionEncrypt) this->encryptFiles();
 	else this->decryptFiles();
@@ -71,7 +63,6 @@ void CryptoThread::decryptFiles()
 		reportComplete("Decryption Complete",
 			"Done, but there were problems reading\n"
 			"some of the files.");
-
 }
 
 bool CryptoThread::decryptFile(QString encryptedFilePath)
@@ -94,7 +85,7 @@ bool CryptoThread::decryptFile(QString encryptedFilePath)
 
 	// Decrypt the file.
 	EncrypterReturn decryptStatus = this->encrypter->
-		decryptFile(&encryptedFile, &temporaryFile);
+		decryptFile(password, &encryptedFile, &temporaryFile);
 
 	// Report issues.
 	if (decryptStatus == ER_PASSWORD_WRONG) {
@@ -143,7 +134,7 @@ void CryptoThread::encryptFiles()
 
 		// Encrypt the contents.
 		EncrypterReturn encryptStatus = this->encrypter->
-			encryptFile(&archiveFile, &encryptedFile);
+			encryptFile(password, &archiveFile, &encryptedFile);
 
 		// If the encryption was OK, make the file permanent.
 		if (encryptStatus == ER_OK) {
@@ -187,7 +178,7 @@ QString CryptoThread::toNativeSeparators(QString path)
 }
 
 void CryptoThread::setupRun(bool isEncrypt, QStringList inputFiles,
-	QString outputPath, QByteArray encryptionKey)
+	QString outputPath, QByteArray encryptionPassword)
 {
 	// Missing critical parameters, abort.
 	if (inputFiles.size() == 0) return;
@@ -196,7 +187,7 @@ void CryptoThread::setupRun(bool isEncrypt, QStringList inputFiles,
 	this->pathIn = getAllSubdirectories(inputFiles);
 	this->rootPathIn = getRootPath(inputFiles);
 	this->pathOut = outputPath;
-	this->key = encryptionKey;
+	this->password = encryptionPassword;
 }
 
 QStringList CryptoThread::getAllSubdirectories(QStringList inputPaths)
