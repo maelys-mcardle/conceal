@@ -5,7 +5,7 @@ Encrypter::Encrypter(QObject *parent) :
 {
 	// Store some constants.
 	this->progressUpdateInterval = 1048576;
-	this->encryptionSaltSize = 256;
+	this->encryptionSaltSize = 16;
 
 	// Seed the pseudo-random number generator.
 	QTime midnight(0, 0, 0);
