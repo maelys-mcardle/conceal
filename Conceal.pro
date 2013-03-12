@@ -11,9 +11,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = conceal
 TEMPLATE = app
 
-installfiles.files += conceal
-installfiles.path = /usr/bin
-INSTALLS += installfiles
+unix {
+	installfiles.files += conceal
+	installfiles.path = /usr/bin
+	INSTALLS += installfiles
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp \

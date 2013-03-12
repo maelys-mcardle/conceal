@@ -6,8 +6,8 @@ Description
  files. It uses the Rijndael-128 cipher to encode the data, with the
  salted MD5 hash of the password acting as its key.
 
-Installation
-------------
+Installation (Unix-Like OS)
+---------------------------
  To compile and install conceal, run the folling from the command-line 
  in order:
 
