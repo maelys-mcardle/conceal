@@ -6,6 +6,15 @@ Description
  files. It uses the Rijndael-128 cipher to encode the data, with the
  salted MD5 hash of the password acting as its key.
 
+Installation
+------------
+ To compile and install conceal, run the folling from the command-line 
+ in order:
+
+   qmake
+   make
+   sudo make install
+
 Copyright
 ---------
  Conceal's source code is released under the terms of the GPLv3. The 
